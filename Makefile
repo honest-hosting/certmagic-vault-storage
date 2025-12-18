@@ -24,7 +24,7 @@ mod-tidy: ## Make sure go modules are tidy
 .PHONY: mod-tidy
 
 mod-update:
-	@if [[ -n "${MODULE}" ]] && [[ -n "${MODULE_VERSION}"; then             \
+	@if [[ -n "${MODULE}" ]] && [[ -n "${MODULE_VERSION}" ]]; then          \
 		echo "Running 'go list -m ${MODULE}@${MODULE_VERSION}' ...";        \
 		GOPROXY=proxy.golang.org go list -m "${MODULE}@${MODULE_VERSION}";  \
 	else                                                                    \
