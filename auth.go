@@ -1,11 +1,12 @@
 package certmagic_vault_storage
 
 import (
-	. "fmt"
-	"github.com/dustin/go-humanize"
-	"github.com/pkg/errors"
+	"fmt"
 	"strings"
 	"time"
+
+	"github.com/dustin/go-humanize"
+	"github.com/pkg/errors"
 )
 
 type errorResponse struct {
@@ -69,6 +70,7 @@ func (s *Storage) getToken() string {
 	}
 
 	if err := s.login(); err != nil {
+		s.logger.Errorw("Could not log in to Vault via AppRole auth", "error", err)
 		return ""
 	}
 
@@ -85,7 +87,7 @@ func (s *Storage) login() error {
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] during vault login using approle credentials",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", response.StatusCode(),
@@ -97,7 +99,7 @@ func (s *Storage) login() error {
 	if response.IsError() {
 		s.logger.Errorw(
 			"[ERROR] during vault login using approle credentials",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", response.StatusCode(),
 			"response_body", response.String(),
@@ -108,45 +110,6 @@ func (s *Storage) login() error {
 	s.approleResponse = result
 	expiration := time.Now().Add(time.Duration(result.Auth.LeaseDuration) * time.Second)
 	s.approleTokenExpiration = &expiration
-
-	return nil
-}
-
-func (s *Storage) logout() error {
-	// If we do not have a valid approleResponse, this is a noop
-	if s.approleResponse == nil {
-		return nil
-	}
-
-	body := &struct{}{}
-	result := &successResponse{}
-	errResponse := &errorResponse{}
-	response, err := s.client.SetHostUrl(s.config.GetVaultBaseUrl()).ApproleLogout(s.getToken(), s.config.GetApproleLogoutPath(), body, result, errResponse)
-	if err != nil {
-		s.logger.Errorw(
-			"[ERROR] during vault login using approle credentials",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
-			"error", err.Error(),
-			"vault_errors", s.vaultErrorString(errResponse),
-			"response_code", response.StatusCode(),
-			"response_body", response.String(),
-		)
-		return err
-	}
-
-	if response.IsError() {
-		s.logger.Errorw(
-			"[ERROR] during vault login using approle credentials",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.config.GetApproleLoginPath()),
-			"vault_errors", s.vaultErrorString(errResponse),
-			"response_code", response.StatusCode(),
-			"response_body", response.String(),
-		)
-		return errResponse.Error()
-	}
-
-	s.approleResponse = nil
-	s.approleTokenExpiration = nil
 
 	return nil
 }

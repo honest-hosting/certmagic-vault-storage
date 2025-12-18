@@ -1,6 +1,6 @@
-module github.com/mywordpress-io/certmagic-vault-storage
+module github.com/honest-hosting/certmagic-vault-storage
 
-go 1.20
+go 1.24
 
 require (
 	github.com/caddyserver/certmagic v0.17.2

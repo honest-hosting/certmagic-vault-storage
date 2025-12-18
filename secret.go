@@ -1,7 +1,7 @@
 package certmagic_vault_storage
 
 import (
-	. "fmt"
+	"fmt"
 	"strings"
 )
 
@@ -17,7 +17,7 @@ const (
 type secretPathFormatType string
 
 func (f secretPathFormatType) String(args ...interface{}) string {
-	return strings.ToLower(Sprintf(string(f), args...))
+	return strings.ToLower(fmt.Sprintf(string(f), args...))
 }
 
 type response struct {

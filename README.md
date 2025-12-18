@@ -3,13 +3,13 @@
 This is a Storage backend for CertMagic which allows storing of TLS certificates managed by it in HashiCorp's Vault.
 
 This plugin can be used standalone in your own go-program, or it can be pulled in to Caddy by using the associated
-project: https://github.com/mywordpress-io/caddy-vault-storage
+project: https://github.com/honest-hosting/caddy-vault-storage
 
 ## Usage
 
 ### Caddy
 
-For usage as a Caddy plugin built with `xcaddy`, review [this project](https://github.com/mywordpress-io/caddy-vault-storage).
+For usage as a Caddy plugin built with `xcaddy`, review [this project](https://github.com/honest-hosting/caddy-vault-storage).
 
 ### Standalone
 
@@ -19,8 +19,8 @@ For standalone usage in your own go module:
 package main
 
 import (
-	"github.com/mywordpress-io/certmagic-vault-storage"
-	"github.com/mywordpress-io/caddy-vault-storage"
+	"github.com/honest-hosting/certmagic-vault-storage"
+	"github.com/honest-hosting/caddy-vault-storage"
 )
 
 func Setup() {

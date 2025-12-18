@@ -2,14 +2,15 @@ package certmagic_vault_storage
 
 import (
 	"context"
-	. "fmt"
-	"github.com/caddyserver/certmagic"
-	"github.com/mywordpress-io/certmagic-vault-storage/internal/client"
-	"go.uber.org/zap"
+	"fmt"
 	"io/fs"
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/caddyserver/certmagic"
+	"github.com/honest-hosting/certmagic-vault-storage/internal/client"
+	"go.uber.org/zap"
 )
 
 type StorageConfigInterface interface {
@@ -57,7 +58,7 @@ type Storage struct {
 }
 
 func (s *Storage) Store(_ context.Context, key string, value []byte) error {
-	s.logger.Debugw("Store() at url", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
+	s.logger.Debugw("Store() at url", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
 
 	secret := &certificateSecret{
 		Certmagic: certMagicCertificateSecret{Data: value},
@@ -68,7 +69,7 @@ func (s *Storage) Store(_ context.Context, key string, value []byte) error {
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to store certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -80,7 +81,7 @@ func (s *Storage) Store(_ context.Context, key string, value []byte) error {
 	if resp.IsError() {
 		s.logger.Errorw(
 			"[ERROR] Unable to store certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
@@ -92,7 +93,7 @@ func (s *Storage) Store(_ context.Context, key string, value []byte) error {
 }
 
 func (s *Storage) Load(_ context.Context, key string) ([]byte, error) {
-	s.logger.Debugw("Load() from url", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
+	s.logger.Debugw("Load() from url", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
 
 	result := &response{}
 	errResponse := &errorResponse{}
@@ -100,7 +101,7 @@ func (s *Storage) Load(_ context.Context, key string) ([]byte, error) {
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to load certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -112,7 +113,7 @@ func (s *Storage) Load(_ context.Context, key string) ([]byte, error) {
 	if resp.IsError() && resp.StatusCode() != http.StatusNotFound {
 		s.logger.Errorw(
 			"[ERROR] Unable to load certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
@@ -127,7 +128,7 @@ func (s *Storage) Load(_ context.Context, key string) ([]byte, error) {
 }
 
 func (s *Storage) Delete(_ context.Context, key string) error {
-	s.logger.Debugw("Delete() at url", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(key)))
+	s.logger.Debugw("Delete() at url", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(key)))
 
 	result := &response{}
 	errResponse := &errorResponse{}
@@ -135,7 +136,7 @@ func (s *Storage) Delete(_ context.Context, key string) error {
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to delete certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -147,7 +148,7 @@ func (s *Storage) Delete(_ context.Context, key string) error {
 	if resp.IsError() && resp.StatusCode() != http.StatusNotFound {
 		s.logger.Errorw(
 			"[ERROR] Unable to delete certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
@@ -162,7 +163,7 @@ func (s *Storage) Delete(_ context.Context, key string) error {
 }
 
 func (s *Storage) Exists(_ context.Context, key string) bool {
-	s.logger.Debugw("Exists() at url", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
+	s.logger.Debugw("Exists() at url", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
 
 	result := &response{}
 	errResponse := &errorResponse{}
@@ -186,7 +187,7 @@ func (s *Storage) Exists(_ context.Context, key string) bool {
 //   - When recursive==false, we ONLY include item that do NOT have a trailing slash
 //   - When recursive==true, we include ALL items from the specified prefix that do NOT have a trailing slash
 func (s *Storage) List(ctx context.Context, prefix string, recursive bool) ([]string, error) {
-	s.logger.Debugw("List() at url", "operation", "list", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(prefix)), "recursive", recursive)
+	s.logger.Debugw("List() at url", "operation", "list", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(prefix)), "recursive", recursive)
 
 	result := &listResponse{}
 	errResponse := &errorResponse{}
@@ -194,7 +195,7 @@ func (s *Storage) List(ctx context.Context, prefix string, recursive bool) ([]st
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to list certificates",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(prefix)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultMetadataPath(prefix)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -208,9 +209,7 @@ func (s *Storage) List(ctx context.Context, prefix string, recursive bool) ([]st
 	for _, entry := range result.Data.Keys {
 		path := entry
 		if strings.HasSuffix(prefix, "/") {
-			path = Sprintf("%s%s", prefix, entry)
-		} else {
-			//path = Sprintf("%s/%s", prefix, entry)
+			path = fmt.Sprintf("%s%s", prefix, entry)
 		}
 
 		if !strings.HasSuffix(path, "/") {
@@ -236,7 +235,7 @@ func (s *Storage) List(ctx context.Context, prefix string, recursive bool) ([]st
 }
 
 func (s *Storage) Stat(_ context.Context, key string) (certmagic.KeyInfo, error) {
-	s.logger.Debugw("Stat() at url", "url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
+	s.logger.Debugw("Stat() at url", "url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)))
 
 	// Get the secret
 	result := &response{}
@@ -245,7 +244,7 @@ func (s *Storage) Stat(_ context.Context, key string) (certmagic.KeyInfo, error)
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to stat certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -257,7 +256,7 @@ func (s *Storage) Stat(_ context.Context, key string) (certmagic.KeyInfo, error)
 	if resp.IsError() && resp.StatusCode() != http.StatusNotFound {
 		s.logger.Errorw(
 			"[ERROR] Unable to stat certificate",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
@@ -277,7 +276,7 @@ func (s *Storage) Stat(_ context.Context, key string) (certmagic.KeyInfo, error)
 }
 
 func (s *Storage) Lock(ctx context.Context, key string) error {
-	lock := Sprintf("%s.lock", key)
+	lock := fmt.Sprintf("%s.lock", key)
 	for {
 		// Get the secret
 		getResult := &response{}
@@ -286,7 +285,7 @@ func (s *Storage) Lock(ctx context.Context, key string) error {
 		if err != nil {
 			s.logger.Errorw(
 				"[ERROR] Unable to get lock",
-				"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
+				"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
 				"error", err.Error(),
 				"vault_errors", s.vaultErrorString(errResponse),
 				"response_code", resp.StatusCode(),
@@ -326,7 +325,7 @@ func (s *Storage) Lock(ctx context.Context, key string) error {
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to create lock",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -338,7 +337,7 @@ func (s *Storage) Lock(ctx context.Context, key string) error {
 	if resp.IsError() {
 		s.logger.Errorw(
 			"[ERROR] Unable to create lock",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
@@ -350,14 +349,14 @@ func (s *Storage) Lock(ctx context.Context, key string) error {
 }
 
 func (s *Storage) Unlock(_ context.Context, key string) error {
-	lock := Sprintf("%s.lock", key)
+	lock := fmt.Sprintf("%s.lock", key)
 	result := &response{}
 	errResponse := &errorResponse{}
 	resp, err := s.client.Delete(s.getToken(), s.vaultMetadataPath(lock), result, errResponse)
 	if err != nil {
 		s.logger.Errorw(
 			"[ERROR] Unable to remove lock",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(lock)),
 			"error", err.Error(),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
@@ -369,7 +368,7 @@ func (s *Storage) Unlock(_ context.Context, key string) error {
 	if resp.IsError() && resp.StatusCode() != http.StatusNotFound {
 		s.logger.Errorw(
 			"[ERROR] Unable to remove lock",
-			"url", Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
+			"url", fmt.Sprintf("%s%s", s.config.GetVaultBaseUrl(), s.vaultDataPath(key)),
 			"vault_errors", s.vaultErrorString(errResponse),
 			"response_code", resp.StatusCode(),
 			"response_body", resp.String(),
